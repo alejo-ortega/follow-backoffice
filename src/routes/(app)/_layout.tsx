@@ -1,10 +1,9 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router"
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router"
 
-import LoginForm from "@/components/LoginForm"
 import { Spinner } from "@/components/ui/spinner"
 import { useAuth } from "@/hooks/useAuth"
 
-export const Route = createFileRoute("/ingreso")({
+export const Route = createFileRoute("/(app)/_layout")({
   component: RouteComponent,
 })
 
@@ -15,5 +14,5 @@ function RouteComponent() {
     return <Spinner />
   }
 
-  return isAuthenticated ? <Navigate to="/" /> : <LoginForm />
+  return isAuthenticated ? <Outlet /> : <Navigate to="/ingreso" />
 }

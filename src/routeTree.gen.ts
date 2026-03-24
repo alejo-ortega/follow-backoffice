@@ -10,33 +10,49 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IngresoRouteImport } from './routes/ingreso'
+import { Route as appLayoutRouteImport } from './routes/(app)/_layout'
+import { Route as appLayoutIndexRouteImport } from './routes/(app)/_layout.index'
 
 const IngresoRoute = IngresoRouteImport.update({
   id: '/ingreso',
   path: '/ingreso',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appLayoutRoute = appLayoutRouteImport.update({
+  id: '/(app)/_layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appLayoutIndexRoute = appLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => appLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/ingreso': typeof IngresoRoute
+  '/': typeof appLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/ingreso': typeof IngresoRoute
+  '/': typeof appLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/ingreso': typeof IngresoRoute
+  '/(app)/_layout': typeof appLayoutRouteWithChildren
+  '/(app)/_layout/': typeof appLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/ingreso'
+  fullPaths: '/ingreso' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/ingreso'
-  id: '__root__' | '/ingreso'
+  to: '/ingreso' | '/'
+  id: '__root__' | '/ingreso' | '/(app)/_layout' | '/(app)/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IngresoRoute: typeof IngresoRoute
+  appLayoutRoute: typeof appLayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +64,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IngresoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/_layout': {
+      id: '/(app)/_layout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)/_layout/': {
+      id: '/(app)/_layout/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appLayoutIndexRouteImport
+      parentRoute: typeof appLayoutRoute
+    }
   }
 }
 
+interface appLayoutRouteChildren {
+  appLayoutIndexRoute: typeof appLayoutIndexRoute
+}
+
+const appLayoutRouteChildren: appLayoutRouteChildren = {
+  appLayoutIndexRoute: appLayoutIndexRoute,
+}
+
+const appLayoutRouteWithChildren = appLayoutRoute._addFileChildren(
+  appLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IngresoRoute: IngresoRoute,
+  appLayoutRoute: appLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
